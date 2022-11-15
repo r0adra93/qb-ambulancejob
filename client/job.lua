@@ -133,6 +133,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 end)
 
 RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
+    if QBCore.Shared.QBJobStatus then return end
     if (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') and duty ~= onDuty then
         TriggerServerEvent("hospital:server:UpdateCurrentDoctors")
     end
@@ -308,6 +309,7 @@ local function EMSControls(variable)
 end
 
 RegisterNetEvent('qb-ambulancejob:stash', function()
+    if QBCore.Shared.QBJobStatus then return end
     if onDuty then
         TriggerServerEvent("inventory:server:OpenInventory", "stash",
             "ambulancestash_" .. QBCore.Functions.GetPlayerData().citizenid)
@@ -316,6 +318,7 @@ RegisterNetEvent('qb-ambulancejob:stash', function()
 end)
 
 RegisterNetEvent('qb-ambulancejob:armory', function()
+    if QBCore.Shared.QBJobStatus then return end
     if onDuty then
         TriggerServerEvent("inventory:server:OpenInventory", "shop", "hospital", Config.Items)
     end
@@ -323,6 +326,7 @@ end)
 
 local CheckVehicle = false
 local function EMSVehicle(k)
+    if QBCore.Shared.QBJobStatus then return end
     CheckVehicle = true
     CreateThread(function()
         while CheckVehicle do
@@ -345,6 +349,7 @@ end
 
 local CheckHeli = false
 local function EMSHelicopter(k)
+    if QBCore.Shared.QBJobStatus then return end
     CheckHeli = true
     CreateThread(function()
         while CheckHeli do
@@ -415,6 +420,7 @@ RegisterNetEvent('qb-ambulancejob:elevator_main', function()
 end)
 
 RegisterNetEvent('EMSToggle:Duty', function()
+    if QBCore.Shared.QBJobStatus then return end
     onDuty = not onDuty
     TriggerServerEvent("QBCore:ToggleDuty")
     TriggerServerEvent("police:server:UpdateBlips")
