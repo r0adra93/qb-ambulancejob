@@ -136,7 +136,6 @@ RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
     if (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') and duty ~= onDuty then
         TriggerServerEvent("hospital:server:UpdateCurrentDoctors")
     end
-
     onDuty = duty
 end)
 
@@ -275,17 +274,7 @@ local function EMSControls(variable)
         while check do
             if IsControlJustPressed(0, 38) then
                 exports['qb-core']:KeyPressed(38)
-                if variable == "sign" then
-                    TriggerEvent('EMSToggle:Duty')
-                elseif variable == "stash" then
-                    TriggerEvent('qb-ambulancejob:stash')
-                elseif variable == "armory" then
-                    TriggerEvent('qb-ambulancejob:armory')
-                elseif variable == "storeheli" then
-                    TriggerEvent('qb-ambulancejob:storeheli')
-                elseif variable == "takeheli" then
-                    TriggerEvent('qb-ambulancejob:pullheli')
-                elseif variable == "roof" then
+                if variable == "roof" then
                     TriggerEvent('qb-ambulancejob:elevator_main')
                 elseif variable == "main" then
                     TriggerEvent('qb-ambulancejob:elevator_roof')
@@ -294,6 +283,28 @@ local function EMSControls(variable)
             Wait(1)
         end
     end)
+    if not QBCore.Shared.QBJobStatus then
+        CreateThread(function()
+            check = true
+            while check do
+                if IsControlJustPressed(0, 38) then
+                    exports['qb-core']:KeyPressed(38)
+                    if variable == "sign" then
+                        TriggerEvent('EMSToggle:Duty')
+                    elseif variable == "stash" then
+                        TriggerEvent('qb-ambulancejob:stash')
+                    elseif variable == "armory" then
+                        TriggerEvent('qb-ambulancejob:armory')
+                    elseif variable == "storeheli" then
+                        TriggerEvent('qb-ambulancejob:storeheli')
+                    elseif variable == "takeheli" then
+                        TriggerEvent('qb-ambulancejob:pullheli')
+                    end
+                end
+                Wait(1)
+            end
+        end)
+    end
 end
 
 RegisterNetEvent('qb-ambulancejob:stash', function()
