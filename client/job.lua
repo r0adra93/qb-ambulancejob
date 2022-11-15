@@ -426,45 +426,47 @@ RegisterNetEvent('EMSToggle:Duty', function()
     TriggerServerEvent("police:server:UpdateBlips")
 end)
 
-CreateThread(function()
-    for k, v in pairs(Config.Locations["vehicle"]) do
-        local boxZone = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 5, 5, {
-            name = "vehicle" .. k,
-            debugPoly = false,
-            heading = 70,
-            minZ = v.z - 2,
-            maxZ = v.z + 2,
-        })
-        boxZone:onPlayerInOut(function(isPointInside)
-            if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') and onDuty then
-                exports['qb-core']:DrawText(Lang:t('text.veh_button'), 'left')
-                EMSVehicle(k)
-            else
-                CheckVehicle = false
-                exports['qb-core']:HideText()
-            end
-        end)
-    end
+if not QBCore.Shared.QBJobStatus then
+    CreateThread(function()
+        for k, v in pairs(Config.Locations["vehicle"]) do
+            local boxZone = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 5, 5, {
+                name = "vehicle" .. k,
+                debugPoly = false,
+                heading = 70,
+                minZ = v.z - 2,
+                maxZ = v.z + 2,
+            })
+            boxZone:onPlayerInOut(function(isPointInside)
+                if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') and onDuty then
+                    exports['qb-core']:DrawText(Lang:t('text.veh_button'), 'left')
+                    EMSVehicle(k)
+                else
+                    CheckVehicle = false
+                    exports['qb-core']:HideText()
+                end
+            end)
+        end
 
-    for k, v in pairs(Config.Locations["helicopter"]) do
-        local boxZone = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 5, 5, {
-            name = "helicopter" .. k,
-            debugPoly = false,
-            heading = 70,
-            minZ = v.z - 2,
-            maxZ = v.z + 2,
-        })
-        boxZone:onPlayerInOut(function(isPointInside)
-            if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') and onDuty then
-                exports['qb-core']:DrawText(Lang:t('text.heli_button'), 'left')
-                EMSHelicopter(k)
-            else
-                CheckHeli = false
-                exports['qb-core']:HideText()
-            end
-        end)
-    end
-end)
+        for k, v in pairs(Config.Locations["helicopter"]) do
+            local boxZone = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 5, 5, {
+                name = "helicopter" .. k,
+                debugPoly = false,
+                heading = 70,
+                minZ = v.z - 2,
+                maxZ = v.z + 2,
+            })
+            boxZone:onPlayerInOut(function(isPointInside)
+                if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') and onDuty then
+                    exports['qb-core']:DrawText(Lang:t('text.heli_button'), 'left')
+                    EMSHelicopter(k)
+                else
+                    CheckHeli = false
+                    exports['qb-core']:HideText()
+                end
+            end)
+        end
+    end)
+end
 
 -- Convar turns into a boolean
 if Config.UseTarget then
