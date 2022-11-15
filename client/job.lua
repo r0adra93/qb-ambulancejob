@@ -469,68 +469,151 @@ if not QBCore.Shared.QBJobStatus then
 end
 
 -- Convar turns into a boolean
+if not QBCore.Shared.QBJobStatus then
+    if Config.UseTarget then
+        CreateThread(function()
+            for k, v in pairs(Config.Locations["duty"]) do
+                exports['qb-target']:AddBoxZone("duty" .. k, vector3(v.x, v.y, v.z), 1.5, 1, {
+                    name = "duty" .. k,
+                    debugPoly = false,
+                    heading = -20,
+                    minZ = v.z - 2,
+                    maxZ = v.z + 2,
+                }, {
+                    options = {
+                        {
+                            type = "client",
+                            event = "EMSToggle:Duty",
+                            icon = "fa fa-clipboard",
+                            label = "Sign In/Off duty",
+                            job = PlayerJob.name
+                        }
+                    },
+                    distance = 1.5
+                })
+            end
+            for k, v in pairs(Config.Locations["stash"]) do
+                exports['qb-target']:AddBoxZone("stash" .. k, vector3(v.x, v.y, v.z), 1, 1, {
+                    name = "stash" .. k,
+                    debugPoly = false,
+                    heading = -20,
+                    minZ = v.z - 2,
+                    maxZ = v.z + 2,
+                }, {
+                    options = {
+                        {
+                            type = "client",
+                            event = "qb-ambulancejob:stash",
+                            icon = "fa fa-hand",
+                            label = "Open Stash",
+                            job = PlayerJob.name
+                        }
+                    },
+                    distance = 1.5
+                })
+            end
+            for k, v in pairs(Config.Locations["armory"]) do
+                exports['qb-target']:AddBoxZone("armory" .. k, vector3(v.x, v.y, v.z), 1, 1, {
+                    name = "armory" .. k,
+                    debugPoly = false,
+                    heading = -20,
+                    minZ = v.z - 2,
+                    maxZ = v.z + 2,
+                }, {
+                    options = {
+                        {
+                            type = "client",
+                            event = "qb-ambulancejob:armory",
+                            icon = "fa fa-hand",
+                            label = "Open Armory",
+                            job = PlayerJob.name
+                        }
+                    },
+                    distance = 1.5
+                })
+            end
+        end)
+    else
+        CreateThread(function()
+            local signPoly = {}
+            for k, v in pairs(Config.Locations["duty"]) do
+                signPoly[#signPoly + 1] = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 1.5, 1, {
+                    name = "sign" .. k,
+                    debugPoly = false,
+                    heading = -20,
+                    minZ = v.z - 2,
+                    maxZ = v.z + 2,
+                })
+            end
+
+            local signCombo = ComboZone:Create(signPoly, { name = "signcombo", debugPoly = false })
+            signCombo:onPlayerInOut(function(isPointInside)
+                if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') then
+                    if not onDuty then
+                        exports['qb-core']:DrawText(Lang:t('text.onduty_button'), 'left')
+                        EMSControls("sign")
+                    else
+                        exports['qb-core']:DrawText(Lang:t('text.offduty_button'), 'left')
+                        EMSControls("sign")
+                    end
+                else
+                    check = false
+                    exports['qb-core']:HideText()
+                end
+            end)
+
+            local stashPoly = {}
+            for k, v in pairs(Config.Locations["stash"]) do
+                stashPoly[#stashPoly + 1] = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 1, 1, {
+                    name = "stash" .. k,
+                    debugPoly = false,
+                    heading = -20,
+                    minZ = v.z - 2,
+                    maxZ = v.z + 2,
+                })
+            end
+
+            local stashCombo = ComboZone:Create(stashPoly, { name = "stashCombo", debugPoly = false })
+            stashCombo:onPlayerInOut(function(isPointInside)
+                if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') then
+                    if onDuty then
+                        exports['qb-core']:DrawText(Lang:t('text.pstash_button'), 'left')
+                        EMSControls("stash")
+                    end
+                else
+                    check = false
+                    exports['qb-core']:HideText()
+                end
+            end)
+
+            local armoryPoly = {}
+            for k, v in pairs(Config.Locations["armory"]) do
+                armoryPoly[#armoryPoly + 1] = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 1, 1, {
+                    name = "armory" .. k,
+                    debugPoly = false,
+                    heading = 70,
+                    minZ = v.z - 2,
+                    maxZ = v.z + 2,
+                })
+            end
+
+            local armoryCombo = ComboZone:Create(armoryPoly, { name = "armoryCombo", debugPoly = false })
+            armoryCombo:onPlayerInOut(function(isPointInside)
+                if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') then
+                    if onDuty then
+                        exports['qb-core']:DrawText(Lang:t('text.armory_button'), 'left')
+                        EMSControls("armory")
+                    end
+                else
+                    check = false
+                    exports['qb-core']:HideText()
+                end
+            end)
+        end)
+    end
+end
 if Config.UseTarget then
     CreateThread(function()
-        for k, v in pairs(Config.Locations["duty"]) do
-            exports['qb-target']:AddBoxZone("duty" .. k, vector3(v.x, v.y, v.z), 1.5, 1, {
-                name = "duty" .. k,
-                debugPoly = false,
-                heading = -20,
-                minZ = v.z - 2,
-                maxZ = v.z + 2,
-            }, {
-                options = {
-                    {
-                        type = "client",
-                        event = "EMSToggle:Duty",
-                        icon = "fa fa-clipboard",
-                        label = "Sign In/Off duty",
-                        job = PlayerJob.name
-                    }
-                },
-                distance = 1.5
-            })
-        end
-        for k, v in pairs(Config.Locations["stash"]) do
-            exports['qb-target']:AddBoxZone("stash" .. k, vector3(v.x, v.y, v.z), 1, 1, {
-                name = "stash" .. k,
-                debugPoly = false,
-                heading = -20,
-                minZ = v.z - 2,
-                maxZ = v.z + 2,
-            }, {
-                options = {
-                    {
-                        type = "client",
-                        event = "qb-ambulancejob:stash",
-                        icon = "fa fa-hand",
-                        label = "Open Stash",
-                        job = PlayerJob.name
-                    }
-                },
-                distance = 1.5
-            })
-        end
-        for k, v in pairs(Config.Locations["armory"]) do
-            exports['qb-target']:AddBoxZone("armory" .. k, vector3(v.x, v.y, v.z), 1, 1, {
-                name = "armory" .. k,
-                debugPoly = false,
-                heading = -20,
-                minZ = v.z - 2,
-                maxZ = v.z + 2,
-            }, {
-                options = {
-                    {
-                        type = "client",
-                        event = "qb-ambulancejob:armory",
-                        icon = "fa fa-hand",
-                        label = "Open Armory",
-                        job = PlayerJob.name
-                    }
-                },
-                distance = 1.5
-            })
-        end
         for k, v in pairs(Config.Locations["roof"]) do
             exports['qb-target']:AddBoxZone("roof" .. k, vector3(v.x, v.y, v.z), 2, 2, {
                 name = "roof" .. k,
@@ -574,81 +657,6 @@ if Config.UseTarget then
     end)
 else
     CreateThread(function()
-        local signPoly = {}
-        for k, v in pairs(Config.Locations["duty"]) do
-            signPoly[#signPoly + 1] = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 1.5, 1, {
-                name = "sign" .. k,
-                debugPoly = false,
-                heading = -20,
-                minZ = v.z - 2,
-                maxZ = v.z + 2,
-            })
-        end
-
-        local signCombo = ComboZone:Create(signPoly, { name = "signcombo", debugPoly = false })
-        signCombo:onPlayerInOut(function(isPointInside)
-            if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') then
-                if not onDuty then
-                    exports['qb-core']:DrawText(Lang:t('text.onduty_button'), 'left')
-                    EMSControls("sign")
-                else
-                    exports['qb-core']:DrawText(Lang:t('text.offduty_button'), 'left')
-                    EMSControls("sign")
-                end
-            else
-                check = false
-                exports['qb-core']:HideText()
-            end
-        end)
-
-        local stashPoly = {}
-        for k, v in pairs(Config.Locations["stash"]) do
-            stashPoly[#stashPoly + 1] = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 1, 1, {
-                name = "stash" .. k,
-                debugPoly = false,
-                heading = -20,
-                minZ = v.z - 2,
-                maxZ = v.z + 2,
-            })
-        end
-
-        local stashCombo = ComboZone:Create(stashPoly, { name = "stashCombo", debugPoly = false })
-        stashCombo:onPlayerInOut(function(isPointInside)
-            if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') then
-                if onDuty then
-                    exports['qb-core']:DrawText(Lang:t('text.pstash_button'), 'left')
-                    EMSControls("stash")
-                end
-            else
-                check = false
-                exports['qb-core']:HideText()
-            end
-        end)
-
-        local armoryPoly = {}
-        for k, v in pairs(Config.Locations["armory"]) do
-            armoryPoly[#armoryPoly + 1] = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 1, 1, {
-                name = "armory" .. k,
-                debugPoly = false,
-                heading = 70,
-                minZ = v.z - 2,
-                maxZ = v.z + 2,
-            })
-        end
-
-        local armoryCombo = ComboZone:Create(armoryPoly, { name = "armoryCombo", debugPoly = false })
-        armoryCombo:onPlayerInOut(function(isPointInside)
-            if isPointInside and (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') then
-                if onDuty then
-                    exports['qb-core']:DrawText(Lang:t('text.armory_button'), 'left')
-                    EMSControls("armory")
-                end
-            else
-                check = false
-                exports['qb-core']:HideText()
-            end
-        end)
-
         local roofPoly = {}
         for k, v in pairs(Config.Locations["roof"]) do
             roofPoly[#roofPoly + 1] = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 2, 2, {
