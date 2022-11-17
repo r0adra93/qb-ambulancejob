@@ -26,7 +26,7 @@ local function GetClosestPlayer()
 end
 
 function TakeOutVehicle(vehicleInfo)
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     local coords = Config.Locations["vehicle"][currentGarage]
     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
         local veh = NetToVeh(netId)
@@ -43,7 +43,7 @@ function TakeOutVehicle(vehicleInfo)
 end
 
 function MenuGarage()
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     local vehicleMenu = {
         {
             header = Lang:t('menu.amb_vehicles'),
@@ -78,13 +78,13 @@ end
 -- Events
 
 RegisterNetEvent('ambulance:client:TakeOutVehicle', function(data)
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     local vehicle = data.vehicle
     TakeOutVehicle(vehicle)
 end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     PlayerJob = JobInfo
     if PlayerJob.name == 'ambulance' or PlayerJob.type == "ems" then
         onDuty = PlayerJob.onduty
@@ -133,7 +133,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 end)
 
 RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     if (PlayerJob.name == 'ambulance' or PlayerJob.type == 'ems') and duty ~= onDuty then
         TriggerServerEvent("hospital:server:UpdateCurrentDoctors")
     end
@@ -284,7 +284,7 @@ local function EMSControls(variable)
             Wait(1)
         end
     end)
-    if not QBCore.Shared.QBJobStatus then
+    if not QBCore.Shared.QBJobsStatus then
         CreateThread(function()
             check = true
             while check do
@@ -309,7 +309,7 @@ local function EMSControls(variable)
 end
 
 RegisterNetEvent('qb-ambulancejob:stash', function()
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     if onDuty then
         TriggerServerEvent("inventory:server:OpenInventory", "stash",
             "ambulancestash_" .. QBCore.Functions.GetPlayerData().citizenid)
@@ -318,7 +318,7 @@ RegisterNetEvent('qb-ambulancejob:stash', function()
 end)
 
 RegisterNetEvent('qb-ambulancejob:armory', function()
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     if onDuty then
         TriggerServerEvent("inventory:server:OpenInventory", "shop", "hospital", Config.Items)
     end
@@ -326,7 +326,7 @@ end)
 
 local CheckVehicle = false
 local function EMSVehicle(k)
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     CheckVehicle = true
     CreateThread(function()
         while CheckVehicle do
@@ -349,7 +349,7 @@ end
 
 local CheckHeli = false
 local function EMSHelicopter(k)
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     CheckHeli = true
     CreateThread(function()
         while CheckHeli do
@@ -420,13 +420,13 @@ RegisterNetEvent('qb-ambulancejob:elevator_main', function()
 end)
 
 RegisterNetEvent('EMSToggle:Duty', function()
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     onDuty = not onDuty
     TriggerServerEvent("QBCore:ToggleDuty")
     TriggerServerEvent("police:server:UpdateBlips")
 end)
 
-if not QBCore.Shared.QBJobStatus then
+if not QBCore.Shared.QBJobsStatus then
     CreateThread(function()
         for k, v in pairs(Config.Locations["vehicle"]) do
             local boxZone = BoxZone:Create(vector3(vector3(v.x, v.y, v.z)), 5, 5, {
@@ -469,7 +469,7 @@ if not QBCore.Shared.QBJobStatus then
 end
 
 -- Convar turns into a boolean
-if not QBCore.Shared.QBJobStatus then
+if not QBCore.Shared.QBJobsStatus then
     if Config.UseTarget then
         CreateThread(function()
             for k, v in pairs(Config.Locations["duty"]) do

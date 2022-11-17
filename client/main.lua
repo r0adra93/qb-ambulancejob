@@ -713,7 +713,7 @@ end)
 -- Threads
 
 CreateThread(function()
-    if QBCore.Shared.QBJobStatus then return end
+    if QBCore.Shared.QBJobsStatus then return end
     for _, station in pairs(Config.Locations["stations"]) do
         local blip = AddBlipForCoord(station.coords.x, station.coords.y, station.coords.z)
         SetBlipSprite(blip, 61)
